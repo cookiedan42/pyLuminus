@@ -28,13 +28,13 @@ class luminusFile(object):
 
     def download(self):
         if os.path.isfile(self.path):
-            return(f'--Checking {self.path}\n--file already exists')
+            return(f'  Checking {self.path}\n -file already exists')
         r = requests.get(self.dlLink,headers=headers)
         if not os.path.exists(self.path.rsplit(os.sep,1)[0]):
             os.makedirs(self.path.rsplit(os.sep,1)[0])
         with open(self.path,"wb") as dlFile:
             dlFile.write(r.content)
-            return(f'--Checking {self.path}\n !New file downloaded!')
+            return(f'  Checking {self.path}\n! New file downloaded!')
 
 class luminusMultimedia(object):#placeholder for multimedia downloads
     def __init__(self):
