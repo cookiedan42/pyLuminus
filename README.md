@@ -3,6 +3,11 @@
 - python
 - requests package --> pip install requests
 
+login   
+type login when prompted for auth code  
+enter nusstu\username and password  
+magic happens
+
 <u>how to get auth header</u>     
 open a logged in session of luminus     
 press f12 to open devtools      

@@ -12,9 +12,11 @@
 
 try:
     import requests
+    from urllib.parse import urlparse, parse_qs
 except:
     print("unable to import requests\ntry running < pip install requests > in command line to install it")
 import os
+from getpass import getpass
 
 class luminusFile(object):
     # this data is all we need to download files
@@ -82,7 +84,7 @@ def getAuth():
             params={"populate":"Creator,termDetail,isMandatory"}
         )
         if r.status_code == 200:
-            print("auth Header works!")
+            print("Valid auth header!")
         elif r.status_code == 401:
             auth = ""
             print(f"Encountered HTTP Error {r.status_code}, invalid auth header")
@@ -91,9 +93,9 @@ def getAuth():
             auth = "failed"
     else:
         auth = ""
-    
+
     while auth=="":# if invalid auth.txt, take in user input and validate it
-        print("type help for instructions on getting auth header")
+        print("\ntype help for instructions on getting auth header\ntype login for to login to luminus directly!")
         auth = input("Please paste a new auth header\n")
 
         if auth =="help":
@@ -108,7 +110,10 @@ def getAuth():
             ''')
             auth = ""
             continue
-
+        elif auth=="login":
+            auth = login()
+            if auth =="":
+                continue
         headers = {
             "Authorization": auth
             ,"DNT":"1"
@@ -118,7 +123,7 @@ def getAuth():
             ,headers=headers
         )
         if r.status_code == 200:
-            print("auth Header works!")
+            print("Valid auth header!")
         elif r.status_code == 401:
             auth = ""
             print(f"Encountered HTTP Error {r.status_code}, invalid auth header")
@@ -129,6 +134,38 @@ def getAuth():
             with open("auth.txt","w") as authFile:
                 authFile.write(auth)
     return headers,r.json()["data"]
+
+def login(): #domain login
+    username = input("nusnetid with nusstu\\\n")
+    password = getpass("enter password\n")
+    VAFS_data = {'UserName': username, 'Password': password, 'AuthMethod': 'FormsAuthentication'}
+    r1 = requests.post(
+        'https://vafs.nus.edu.sg/adfs/oauth2/authorize'
+        ,data=VAFS_data
+        ,params = {
+            "response_type":"code"
+            ,"client_id":"E10493A3B1024F14BDC7D0D8B9F649E9-234390"
+            ,"redirect_uri":"https://luminus.nus.edu.sg/auth/callback"
+            ,"resource":"sg_edu_nus_oauth"
+        }
+    )
+    if urlparse(r1.url).netloc == 'vafs.nus.edu.sg':
+        print('incorrect login details.')
+        return ""
+    else:
+        query_string = urlparse(r1.url).query
+        code = parse_qs(query_string)['code'][0]
+        ADFS_TOKEN_URL = 'https://luminus.nus.edu.sg/v2/api/login/adfstoken'
+        ADFS_TOKEN_data = {
+            'grant_type': 'authorization_code'
+            ,'client_id': 'E10493A3B1024F14BDC7D0D8B9F649E9-234390'
+            ,'resource': 'sg_edu_nus_oauth'
+            ,'code': code
+            ,'redirect_uri': 'https://luminus.nus.edu.sg/auth/callback' 
+        }
+        r2 = requests.post(ADFS_TOKEN_URL, data=ADFS_TOKEN_data)
+        print('Successful login!')
+        return("Bearer "+ r2.json()['access_token'])
 
 def parseFolder(path,folderID): #search a folder for subfolders and files
     outDict = {}
@@ -177,7 +214,7 @@ def main():
         #module is [name,ID]
         moduleFiles[module[0]] = parseFolder(module[0],module[1])
 
-    print("downloading new files")
+    print("Downloading new files")
     #download all files in flattened file tree
     for i in treeParser(moduleFiles):
         print(i.download())
