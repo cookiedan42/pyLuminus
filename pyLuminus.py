@@ -178,7 +178,7 @@ def parseFolder(path,folderID): #search a folder for subfolders and files
         ,{"populate":"Creator,lastUpdatedUser,comment"}
     )
     for item in folderItems:
-        if item.get("sortFilesBy"):#is a subfolder
+        if "isTurnitinFolder" in item.keys():#is a subfolder
             if item.get('isActive')==True:
                 subFolderID = item["id"]
                 outDict[path+os.sep+item['name']] = parseFolder(path+os.sep+item['name'],subFolderID)
