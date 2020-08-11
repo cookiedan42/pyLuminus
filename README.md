@@ -18,3 +18,6 @@ copy the authorization header in the request Headers sidebar
 Copy it--> should look something like "Bearer ......"   
 
 Or just type help when prompted for the auth header
+  
+  
+Still an early MVP, major changes are likely to happen  
