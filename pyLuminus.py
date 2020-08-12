@@ -1,20 +1,9 @@
-#TODO: filter by module code
-#TODO: download multimedia
-#TODO: error handling for all the other http codes
-#TODO: error handling in general
-#TODO: turn repeated check code into checkauth function
-#TODO: automate pip install requests
-#TODO: make a update auth header function
-#TODO: turn this into a command line thing
-
-
-
-
 try:
     import requests
     from urllib.parse import urlparse, parse_qs
 except:
     print("unable to import requests\ntry running < pip install requests > in command line to install it")
+    input()
 import os
 from getpass import getpass
 
