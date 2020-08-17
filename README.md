@@ -17,7 +17,7 @@ these are a few tools written in python to centralise these resources
 - currently only works for luminus native, not panopto
 
 `meetings.py`   
-- gets clickable links of upcoming meetings and their passwords
+- gets links of upcoming meetings and their passwords
 
 
 login   
