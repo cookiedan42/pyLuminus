@@ -3,6 +3,8 @@ from pyLuminusFunctions import *
 class luminusVideo(object):
     def __init__(self,path,fileDict):
         self.path = path
+        if os.path.splitext(fileDict.get('name'))[1] == "":
+            self.path += os.path.splitext(fileDict.get('fileName'))[1]
         self.fileName = fileDict.get('fileName')
         self.mediaBase = fileDict.get('streamUrlPath').rsplit('/',1)[0]
         self.chunksPath = self.mediaBase + "/" + self.getChunkpath(fileDict.get('streamUrlPath'))
@@ -213,7 +215,6 @@ def main():
     print("Downloading new videos")
     for i in treeParser(allMedia):
         print(i.download())
-        break
 
 
 if __name__ == "__main__":
