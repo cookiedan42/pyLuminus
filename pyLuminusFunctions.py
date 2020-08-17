@@ -7,29 +7,11 @@ except:
 import os
 from getpass import getpass
 
-class luminusFile(object):
-    # this data is all we need to download files
-    # all the rest of code is to create this object
-    def __init__(self,path,link,name):
-        self.path = path
-        self.dlLink = link
-        self.name = name
-
-    def download(self):
-        if os.path.isfile(self.path):
-            return(f'  Checking {self.path}\n -file already exists')
-        r = requests.get(self.dlLink,headers=headers)
-        if not os.path.exists(self.path.rsplit(os.sep,1)[0]):
-            os.makedirs(self.path.rsplit(os.sep,1)[0])
-        with open(self.path,"wb") as dlFile:
-            dlFile.write(r.content)
-            return(f'  Checking {self.path}\n! New file downloaded!')
-
-class luminusMultimedia(object):#placeholder for multimedia downloads
-    def __init__(self):
-        pass
-    def download(self):
-        pass
+def sanitizeFileName(filename):
+    for i in ["\"","*","<",">","?","\\","|","/",":"]:
+        filename = filename.replace(i,"_")
+    filename = filename.strip(' ')
+    return filename
 
 def getAnnouncements(ID): #unused
     #get all announcements for a module
@@ -60,6 +42,7 @@ def luminusJSON(target,params):#wrapper to make calling luminus API nicer
         return r.status_code
 
 def getAuth():
+    global headers
     if os.path.isfile("auth.txt"): #test saved auth header
         with open("auth.txt","r") as authFile:
             auth = authFile.read()
@@ -156,29 +139,6 @@ def login(): #domain login
         print('Successful login!')
         return("Bearer "+ r2.json()['access_token'])
 
-def parseFolder(path,folderID): #search a folder for subfolders and files
-    outDict = {}
-    folderItems = luminusJSON(
-        "https://luminus.nus.edu.sg/v2/api/files/"
-        ,{"populate":"totalFileCount,subFolderCount,TotalSize","ParentID":folderID}
-    )
-    folderItems+=luminusJSON(
-        f"https://luminus.nus.edu.sg/v2/api/files/{folderID}/file"
-        ,{"populate":"Creator,lastUpdatedUser,comment"}
-    )
-    for item in folderItems:
-        if "isTurnitinFolder" in item.keys():#is a subfolder
-            if item.get('isActive')==True:
-                subFolderID = item["id"]
-                outDict[path+os.sep+item['name']] = parseFolder(path+os.sep+item['name'],subFolderID)
-        else: #file
-            outDict[item["fileName"]] = parseFile(path+os.sep+item['name'],item["fileName"],item["id"])
-    return outDict
-
-def parseFile(path,fileName,fileID):
-    dl = requests.get("https://luminus.nus.edu.sg/v2/api/files/file/"+fileID+"/downloadurl",headers=headers).json()['data']
-    return luminusFile(path,dl,fileName)
-
 def treeParser(tree):
     #flattens tree of module files
     a =  [treeParser(i)if type(i) == dict else i for i in tree.values()]
@@ -190,23 +150,9 @@ def treeParser(tree):
             b+=[i]
     return b
 
+
 def main():
-    global headers
-    headers,fullModules = getAuth()
-    modulesID = [(i['name'].replace("/","_"),i['id'])for i in fullModules] #sanitise CS2030/CS2030S to prevent directory spam
-    #---this is where filtering by module name would happen---
-
-    print("Searching for files")
-    #create filetree
-    moduleFiles = {}
-    for module in modulesID:
-        #module is [name,ID]
-        moduleFiles[module[0]] = parseFolder(module[0],module[1])
-
-    print("Downloading new files")
-    #download all files in flattened file tree
-    for i in treeParser(moduleFiles):
-        print(i.download())
+    print("this is just a helper file, run something else")
 
 if __name__ == "__main__":
     main()
