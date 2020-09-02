@@ -22,7 +22,6 @@ def main():
 
     print("Searching for meetings")
     #create filetree
-    moduleFiles = {}
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for module in modulesID:
         allMeetings = []

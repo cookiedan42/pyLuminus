@@ -1,11 +1,17 @@
+import os
+from getpass import getpass
+
 try:
     import requests
     from urllib.parse import urlparse, parse_qs
-except:
-    print("unable to import requests\ntry running < pip install requests > in command line to install it")
-    input()
-import os
-from getpass import getpass
+except(ModuleNotFoundError):
+    os.system("pip install requests")
+    import requests
+    from urllib.parse import urlparse, parse_qs
+except Exception as e:
+    print("encountered Error")
+    print(e)
+    input("")
 
 def sanitizeFileName(filename):
     for i in ["\"","*","<",">","?","\\","|","/",":"]:
